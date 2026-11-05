@@ -1,0 +1,79 @@
+* { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; }
+  canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+
+  /* No backdrop-filter: blurring a constantly changing WebGL canvas every frame is a major source of lag. */
+  .glass { background: rgba(10, 18, 30, 0.78); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; }
+
+  #hud { position: fixed; top: 14px; left: 14px; padding: 12px 16px; min-width: 220px; user-select: none; }
+  #hud h1 { margin: 0 0 6px; font-size: 18px; letter-spacing: .3px; }
+  #hud .row { font-size: 13px; opacity: .92; line-height: 1.6; display: flex; justify-content: space-between; gap: 14px; }
+  #hud .row b { font-variant-numeric: tabular-nums; }
+
+  #panel { position: fixed; left: 14px; bottom: 14px; padding: 12px 14px; display: none; flex-direction: column; gap: 9px; max-width: calc(100vw - 190px); max-height: calc(100vh - 90px); overflow-y: auto; }
+  #panel.open { display: flex; }
+
+  /* Always-visible round buttons: pause, record, show/hide controls */
+  #quick { position: fixed; right: calc(10px + env(safe-area-inset-right)); bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; z-index: 5; }
+  #quick button { width: 46px; height: 46px; padding: 0; border-radius: 50%; font-size: 18px; line-height: 1; background: rgba(10, 18, 30, 0.78); }
+  #quick button.recording { background: #fff; color: #b91c1c; }
+  #quick button.rec { background: rgba(220, 38, 38, 0.85); }
+  #quick button.recording.rec { background: #fff; }
+  #panel .line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+  button { cursor: pointer; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); color: #fff; padding: 7px 12px; border-radius: 9px; font-size: 13px; font-weight: 600; transition: background .15s, transform .05s; }
+  button:hover { background: rgba(255,255,255,0.22); }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.rec { background: rgba(220, 38, 38, 0.75); border-color: rgba(255,120,120,0.6); }
+  button.rec:hover { background: rgba(239, 68, 68, 0.9); }
+  button.recording { background: #fff; color: #b91c1c; }
+  button.small { padding: 4px 9px; font-size: 12px; }
+  input[type=range] { width: 110px; accent-color: #7dd3fc; }
+  input#syncMs { width: 170px; }
+  label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+  input[type=checkbox] { accent-color: #7dd3fc; width: 15px; height: 15px; }
+  select { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 5px 6px; font-size: 13px; }
+  select option { color: #000; }
+  select:disabled { opacity: .45; }
+  .pro { padding: 7px 10px; border-radius: 10px; background: rgba(250, 204, 21, 0.12); border: 1px solid rgba(250, 204, 21, 0.4); }
+  .sync { padding: 7px 10px; border-radius: 10px; background: rgba(125, 211, 252, 0.10); border: 1px solid rgba(125, 211, 252, 0.4); }
+  #syncVal { min-width: 64px; display: inline-block; text-align: right; font-variant-numeric: tabular-nums; }
+  .hint { font-size: 11px; opacity: .65; }
+
+  #recBadge { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); padding: 7px 14px; border-radius: 999px; display: none; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,80,80,0.6); }
+  #recBadge .dot { width: 11px; height: 11px; border-radius: 50%; background: #ef4444; animation: blink 1s infinite; }
+  #recBadge .tag { font-size: 11px; background: #facc15; color: #000; padding: 2px 6px; border-radius: 6px; display: none; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  #countdown { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; pointer-events: none; }
+  #countdown .num { font-size: 140px; font-weight: 800; text-shadow: 0 6px 30px rgba(0,0,0,.6); animation: pop .9s ease-out; }
+  #countdown .sub { font-size: 16px; opacity: .8; letter-spacing: 2px; text-transform: uppercase; }
+  @keyframes pop { 0% { transform: scale(1.6); opacity: 0; } 30% { transform: scale(1); opacity: 1; } 100% { opacity: .85; } }
+
+  #modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.7); z-index: 20; }
+  #modal .card { padding: 18px; width: min(860px, 94vw); }
+  #modal h3 { margin: 0 0 10px; font-size: 18px; }
+  #modal video { width: 100%; max-height: 64vh; border-radius: 10px; background: #000; }
+  #modal .actions { margin-top: 12px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; align-items: center; }
+  #modal .info { margin-right: auto; font-size: 12px; opacity: .7; }
+  #dlBtn { background: #22c55e; border-color: #4ade80; }
+
+  canvas { touch-action: none; }
+  [hidden] { display: none !important; }
+
+  /* Phones / touch screens: tiny one-line stats, controls hidden in a sheet until opened */
+  @media (max-width: 700px), (pointer: coarse) {
+    #hud { top: calc(8px + env(safe-area-inset-top)); left: calc(8px + env(safe-area-inset-left)); padding: 5px 10px; min-width: 0; display: flex; align-items: center; gap: 10px; border-radius: 10px; }
+    #hud h1, #hud .row.opt { display: none; }
+    #hud .row { font-size: 12px; line-height: 1.2; gap: 4px; }
+    #recBadge { top: calc(46px + env(safe-area-inset-top)); left: calc(8px + env(safe-area-inset-left)); transform: none; padding: 5px 10px; font-size: 12px; }
+    #panel { left: 8px; right: 8px; bottom: calc(66px + env(safe-area-inset-bottom)); max-width: none; max-height: 48vh; max-height: 48dvh; padding: 10px 12px; }
+    #panel .line { gap: 10px; }
+    input[type=range] { flex: 1 1 110px; width: auto; min-width: 90px; height: 28px; }
+    input#syncMs { width: auto; }
+    button { padding: 9px 13px; }
+    button.small { padding: 6px 10px; }
+    select { padding: 7px 8px; }
+    .kbd-hint { display: none; }
+    #countdown .num { font-size: 96px; }
+  }

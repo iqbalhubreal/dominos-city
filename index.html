@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<title>Domino City – Endless Domino Tracks</title>
+<link rel="stylesheet" href="./styles.css" />
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<div id="hud" class="glass">
+  <h1>🏙️ Domino City</h1>
+  <div class="row"><span>Distance</span><b id="sBall">0 m</b></div>
+  <div class="row"><span>Toppled</span><b id="sTree">0</b></div>
+  <div class="row"><span>Hops</span><b id="sJumps">0</b></div>
+  <div class="row opt"><span>Camera</span><b id="sCam">Free orbit</b></div>
+  <div class="row opt"><span>FPS</span><b id="sFps">--</b></div>
+</div>
+
+<div id="recBadge"><span class="dot"></span><span id="recTime">REC 00:00</span><span class="tag" id="recTag">PRO</span></div>
+
+<div id="countdown"><div class="num" id="cdNum">3</div><div class="sub">Auto pro shooting</div></div>
+
+<div id="panel" class="glass">
+  <div class="line">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="restartBtn">↺ Restart</button>
+    <span>Speed</span><input id="speed" type="range" min="0.5" max="3" step="0.1" value="1" /><b id="speedVal">1.0×</b>
+  </div>
+  <div class="line">
+    <button id="muteBtn">🔊 Mute</button>
+    <span>Volume</span><input id="vol" type="range" min="0" max="1" step="0.01" value="0.7" />
+    <label><input id="windChk" type="checkbox" checked /> Soft hum</label>
+  </div>
+  <div class="line sync">
+    <span>🎯 Sound sync</span>
+    <input id="syncMs" type="range" min="-200" max="300" step="5" value="0" aria-label="Domino click sound delay in milliseconds" />
+    <b id="syncVal">0 ms</b>
+    <button id="syncReset" class="small">Reset</button>
+  </div>
+  <div class="hint" id="latHint">Negative = sound earlier, positive = later (keys , and .). Device latency is compensated automatically.</div>
+  <div class="line">
+    <button id="recBtn" class="rec">⏺ Start Recording</button>
+    <button id="snapBtn">📷 Snapshot</button>
+    <label><input id="recSoundChk" type="checkbox" checked /> Record with sound</label>
+  </div>
+  <div class="line pro">
+    <label><input id="proChk" type="checkbox" /> 🎥 <b>Auto professional shooting</b></label>
+    <span>Format</span>
+    <select id="proAspect" disabled aria-label="Professional video aspect ratio">
+      <option value="9:16" selected>Portrait 9:16</option>
+      <option value="16:9">Landscape 16:9</option>
+    </select>
+    <span>Style</span>
+    <select id="proStyle" disabled aria-label="Recording style">
+      <option value="cinematic" selected>Cinematic cuts</option>
+      <option value="loop">Seamless 10 s loop</option>
+    </select>
+    <span>Quality</span>
+    <select id="proQuality" disabled aria-label="Recording quality">
+      <option value="smooth">Smooth · 720p 30fps</option>
+      <option value="high" selected>High · 1080p 30fps</option>
+      <option value="ultra">Ultra · 1080p 60fps</option>
+    </select>
+    <span>Length</span>
+    <select id="proLen" disabled>
+      <option value="0">Manual stop</option>
+      <option value="15">15 s</option>
+      <option value="30" selected>30 s</option>
+      <option value="60">60 s</option>
+      <option value="120">2 min</option>
+    </select>
+  </div>
+  <div class="line pro" id="loopOpts" hidden>
+    <span>🔁 Loop</span>
+    <span>Repeats</span>
+    <select id="loopCycles" aria-label="Loop repeats">
+      <option value="1" selected>1× · 10 s</option>
+      <option value="2">2× · 20 s</option>
+      <option value="3">3× · 30 s</option>
+    </select>
+    <span>Camera</span>
+    <select id="loopCam" aria-label="Loop camera">
+      <option value="orbit" selected>Orbit 360°</option>
+      <option value="sway">Chase + sway</option>
+    </select>
+  </div>
+  <div class="hint" id="loopHint" hidden>Each 10 s cycle ends on the same pose it starts on, so the video repeats with no visible jump. The track, sky and city repeat exactly; cuts and fades are off. Loops are rendered frame by frame (not in real time) so lag can't cause a hitch — keep this tab open while it renders.</div>
+  <div class="hint">Pro preview renders at half size to stay smooth; recording uses the full selected size. If it still lags, pick "Smooth".</div>
+  <div class="hint kbd-hint">Space = pause · R = record · M = mute · P = snapshot · , / . = sound sync ∓5 ms · Drag/scroll = orbit (when auto shooting is off)</div>
+</div>
+
+<div id="quick">
+  <button id="quickPause" aria-label="Pause or play">⏸</button>
+  <button id="quickRec" class="rec" aria-label="Start or stop recording">⏺</button>
+  <button id="panelToggle" aria-label="Show or hide controls">⚙</button>
+</div>
+
+<div id="modal">
+  <div class="card glass">
+    <h3>🎬 Your recording</h3>
+    <video id="preview" controls playsinline></video>
+    <div class="actions">
+      <span class="info" id="vidInfo"></span>
+      <button id="closeBtn">Close</button>
+      <button id="dlBtn">⬇ Download video</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
